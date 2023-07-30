@@ -27,10 +27,14 @@ Java Library Project:
 Acceptance Stories:
 1.
 Given: A Client wants to borrow a copy of a book.
+
 When: A specific book is chosen.
+
 Then: The due time of returning the book is set and the borrowed book is assigned to the client.
 
 2.
 Given: A client returns the borrowed book.
+
 When: The book copy is added to the library system.
+
 Then: The due time is set 0 and the availability of this copy is set to 1.
