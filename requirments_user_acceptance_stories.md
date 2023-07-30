@@ -24,7 +24,8 @@ Java Library Project:
 5. As a Library employee, I want to be able to remove Book titles and copies of books in the Library system.
 
 
-Acceptance Stories:
+**Acceptance Stories:**
+
 1.
 Given: A Client wants to borrow a copy of a book.
 
