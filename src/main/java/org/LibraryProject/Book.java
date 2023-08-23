@@ -28,6 +28,10 @@ public class Book {
         return bookTitle;
     }
 
+    public int getBookID() {
+        return bookID;
+    }
+
     protected void checkOutBook(Client client) {
         if (this.isBorrowed) {
             System.out.println("Book at the moment not available");

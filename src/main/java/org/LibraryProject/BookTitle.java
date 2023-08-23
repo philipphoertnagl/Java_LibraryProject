@@ -32,6 +32,14 @@ public class BookTitle {
         return title;
     }
 
+    public String getAuthor() {
+        return author;
+    }
+
+    public String getISBN() {
+        return ISBN;
+    }
+
     public int getBorrowedCopies() {
         int count = 0;
         for (Book book : copies) {

@@ -1,5 +1,9 @@
 package org.LibraryProject;
 
+import org.LibraryProject.Book;
+import org.LibraryProject.BookTitle;
+import org.LibraryProject.Client;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,15 +21,16 @@ public class Library {
         this.books = new ArrayList<>();
         this.clients = new ArrayList<>();
     }
+
     public void addBookCopy(BookTitle bookTitle, int amount) { //needed only for 1 single copy adding to list
-        for(int i = 0; i < amount; i++) {
+        for (int i = 0; i < amount; i++) {
             Book newCopy = bookTitle.addCopy();
             this.books.add(newCopy);
         }
     }
 
     public void removeOldestBookCopy(BookTitle bookTitle, int amount) {
-        for(int i = 0; i < amount; i++) {
+        for (int i = 0; i < amount; i++) {
             Book notBorrowedCopy = null;
             for (Book book : bookTitle.getCopies()) {
                 if (!book.isBorrowed()) {
@@ -63,10 +68,10 @@ public class Library {
         // Otherwise, proceed with the borrowing process
         availableCopy.checkOutBook(client);
         client.addBorrowedBook(availableCopy);
-        System.out.println("\"" + client.getName() +  "\" has borrowed a copy of \"" + bookTitle.getTitle() + "\".");
+        addClient(client);
+        System.out.println("\"" + client.getName() + "\" has borrowed a copy of \"" + bookTitle.getTitle() + "\".");
         return availableCopy;
     }
-
 
 
     public void returnProcess(BookTitle bookTitle, Client client) {
@@ -88,17 +93,17 @@ public class Library {
         // Otherwise, proceed with the returning process
         borrowedCopy.returnBook(client);
         client.returnBook(borrowedCopy);
+        addClient(client);
         System.out.println("\"" + client.getName() + "\" returned \"" + bookTitle.getTitle() + "\".");
     }
-
 
 
     public void listAvailableBooks() {
         System.out.println("These books are currently available: ");
         for (Book book : books) {
-           if(!book.isBorrowed()) {
-               System.out.println(book.getBookTitle().getTitle());
-           }
+            if (!book.isBorrowed()) {
+                System.out.println(book.getBookTitle().getTitle());
+            }
         }
         System.out.println("\n");
     }
@@ -106,7 +111,7 @@ public class Library {
     public void listBorrowedBooks() {
         System.out.println("These books are currently borrowed: ");
         for (Book book : books) {
-            if(book.isBorrowed()) {
+            if (book.isBorrowed()) {
                 System.out.println("\"" + book.getBookTitle().getTitle() + "\" by Client \"" + book.getClient().getName() + "\"");
             }
         }
@@ -115,67 +120,64 @@ public class Library {
 
     public BookTitle searchTitle(String searchedTerm) {
         for (Book book : books) {
-            if(book.getBookTitle().getTitle().toLowerCase().contains(searchedTerm.toLowerCase())) {
+            if (book.getBookTitle().getTitle().toLowerCase().contains(searchedTerm.toLowerCase())) {
                 System.out.println(String.format("Of the Title \"%s\" are %d copies available.", book.getBookTitle().getTitle(), book.getBookTitle().getCopies().size()));
                 return book.getBookTitle();
+            }
+        }
+        return null; //if nothing found
+    }
+
+    public void addClient(Client client) {
+        if (!clients.contains(client)) {
+            clients.add(client);
+        }
+    }
+
+
+
+
+    public void saveToFile(String filename) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            for (Client client : clients) {
+                String escapedName = client.getName().replace(",", "\\,");
+                writer.write("Client," + escapedName + "," + client.getEmail() + "," + client.getClientID());
+                writer.newLine();
+            }
+
+            for (Book book : books) {
+                String escapedTitle = book.getBookTitle().getTitle().replace(",", "\\,");
+                writer.write("Book," + escapedTitle + "," +
+                        book.getBookTitle().getAuthor() + "," +
+                        book.getBookTitle().getISBN() + "," +
+                        book.getBookID());
+                writer.newLine();
+            }
+            // Extend this for other data as necessary
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadFromFile(String filename) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts[0].equals("Client")) {
+                    String originalName = parts[1].replace("\\,", ",");
+                    Client client = new Client(originalName, parts[2]);
+                    this.clients.add(client);
+                } else if (parts[0].equals("Book")) {
+                    String originalTitle = parts[1].replace("\\,", ",");
+                    BookTitle bookTitle = new BookTitle(originalTitle, parts[2], parts[3], 1); // assuming 1 copy for simplicity
+                    this.addBookTitle(bookTitle); // This adds the book to the library
                 }
             }
-        return null; //if nothing found
-        }
-}
-
-// I/O .csv STUFF:
-
-/*
-    public void saveToFile(String filename) {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(filename))) {
-            // For each book in your library
-            for (Book book : books) {
-                // Save the book's data in CSV format
-                writer.println(bookToCSV(book));
-            }
-            // Optionally, you can save client data too.
-            for (Client client : clients) {
-                // Save the client's data in CSV format
-                writer.println(clientToCSV(client));
-            }
         } catch (IOException e) {
-            System.out.println("Error writing to file: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-*/
-   /*
-    //OLD DESIGN
 
-    public void borrowProcess(Book book, Client client) {
-        if (!books.contains(book)) {
-            System.out.println("This book is not part of this library.");
-            return;
-        }
-        if (book.isBorrowed()) {
-            System.out.println("This book is currently borrowed by someone else.");
-            return;
-        }
-        book.checkOutBook(client);
-        client.clientBorrowBook(book);
-        System.out.println(client.getName() + " borrowed " + book.getBookTitle().getTitle());
-    }
-
-    // DIFFICULT NEW SYNTAX
-
-    public void borrowProcess(BookTitle bookTitle, Client client) {
-    // Find the first available copy of the book
-    Optional<Book> availableCopy = bookTitle.getCopies().stream().filter(book -> !book.isBorrowed()).findFirst();
-
-    if (!availableCopy.isPresent()) {
-        System.out.println("All copies of this book are currently borrowed.");
-        return;
-    }
-
-    Book bookToBorrow = availableCopy.get();
-    bookToBorrow.checkOutBook(client);
-    client.clientBorrowBook(bookToBorrow);
-    System.out.println(client.getName() + " borrowed " + bookToBorrow.getBookTitle().getTitle());
 }
-     */

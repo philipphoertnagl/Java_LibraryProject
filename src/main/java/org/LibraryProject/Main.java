@@ -1,5 +1,8 @@
 package org.LibraryProject;
 
+import org.LibraryProject.BookTitle;
+import org.LibraryProject.Client;
+
 import javax.swing.*;
 
 public class Main {
@@ -13,6 +16,7 @@ public class Main {
 
         Client phil = new Client("Phil", "phliwas@gmail.com");
         Client dina = new Client("Dina", "dina@gmail.com");
+        Client testUser = new Client("TestUser", "test@gmail.com");
 
         //add the book copies to the library system list (before theyre just floating around in memory
         myLibrary.addBookTitle(harryPotter);
@@ -62,6 +66,10 @@ public class Main {
         myLibrary.searchTitle("Die Verwandlung");
         myLibrary.searchTitle("Harry Potter");
 
+        //myLibrary.saveToFile("savedData.csv");
+        //myLibrary.loadFromFile("savedData.csv");
+        
+        /*
         JFrame frame = new JFrame();
         JButton button = new JButton("click me");
 
@@ -69,5 +77,7 @@ public class Main {
         frame.getContentPane().add(button);
         frame.setSize(300,300);
         frame.setVisible(true);
+
+         */
     }
 }

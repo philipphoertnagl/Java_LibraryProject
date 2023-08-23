@@ -29,6 +29,10 @@ public class Client {
         return email;
     }
 
+    public int getClientID() {
+        return clientID;
+    }
+
     // Add a borrowed book to the list
     public void addBorrowedBook(Book book) {
         borrowedBooks.add(book);
